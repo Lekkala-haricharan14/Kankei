@@ -1,0 +1,97 @@
+<div class="layout-container">
+    <!-- Sidebar -->
+    <aside class="sidebar" [class.collapsed]="sidebarCollapsed">
+        <div class="brand">
+            <span class="logo-text">Kankei</span>
+            <button class="toggle-btn" (click)="sidebarCollapsed = !sidebarCollapsed">
+                {{ sidebarCollapsed ? '→' : '←' }}
+            </button>
+        </div>
+
+        <nav class="nav-links">
+            <!-- Admin Links -->
+            <ng-container *ngIf="auth.isAdmin()">
+                <a routerLink="/admin" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                    <span class="icon">📊</span>
+                    <span class="link-text">Dashboard</span>
+                </a>
+            </ng-container>
+
+            <!-- Trainer Links -->
+            <ng-container *ngIf="auth.isTrainer()">
+                <a routerLink="/trainer" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                    <span class="icon">📊</span>
+                    <span class="link-text">Dashboard</span>
+                </a>
+            </ng-container>
+
+            <!-- Client Links -->
+            <ng-container *ngIf="auth.isClient()">
+                <a routerLink="/client" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+                    <span class="icon">📊</span>
+                    <span class="link-text">Dashboard</span>
+                </a>
+            </ng-container>
+        </nav>
+
+        <div class="user-profile">
+            <div class="user-info">
+                <span class="name">{{ auth.currentUser()?.name }}</span>
+                <span class="role">{{ auth.currentUser()?.role }}</span>
+            </div>
+            <button type="button" (click)="auth.logout()" class="logout-btn">
+                <span class="icon">🚪</span>
+                <span class="link-text">Logout</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Mobile Header -->
+    <header class="mobile-header">
+        <button class="menu-btn" (click)="mobileMenuOpen = !mobileMenuOpen">☰</button>
+        <span class="logo-text">Kankei</span>
+        <span class="user-badge">{{ auth.currentUser()?.role }}</span>
+    </header>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="mobile-overlay" *ngIf="mobileMenuOpen" (click)="mobileMenuOpen = false"></div>
+
+    <!-- Mobile Sidebar -->
+    <aside class="mobile-sidebar" [class.open]="mobileMenuOpen">
+        <div class="mobile-sidebar-header">
+            <span class="logo-text">Kankei</span>
+            <button (click)="mobileMenuOpen = false">✕</button>
+        </div>
+
+        <nav class="nav-links">
+            <ng-container *ngIf="auth.isAdmin()">
+                <a routerLink="/admin" routerLinkActive="active" (click)="mobileMenuOpen = false">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+            </ng-container>
+            <ng-container *ngIf="auth.isTrainer()">
+                <a routerLink="/trainer" routerLinkActive="active" (click)="mobileMenuOpen = false">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+            </ng-container>
+            <ng-container *ngIf="auth.isClient()">
+                <a routerLink="/client" routerLinkActive="active" (click)="mobileMenuOpen = false">
+                    <span class="icon">📊</span> Dashboard
+                </a>
+            </ng-container>
+        </nav>
+
+        <div class="user-profile">
+            <div class="user-info">
+                <span class="name">{{ auth.currentUser()?.name }}</span>
+                <span class="role">{{ auth.currentUser()?.role }}</span>
+            </div>
+            <button type="button" (click)="auth.logout()" class="logout-btn">Logout</button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <router-outlet></router-outlet>
+    </main>
+</div>

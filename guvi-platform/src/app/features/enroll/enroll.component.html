@@ -1,0 +1,211 @@
+<div class="enroll-container">
+    <div class="split-layout">
+        <!-- Left Side: Hero/Info -->
+        <div class="info-side">
+            <div class="brand">Kankei</div>
+
+            <div class="hero-content">
+                <h1>Join the Future of Corporate Training</h1>
+                <p>Whether you're a company looking to upskill your workforce or an expert trainer ready to share
+                    knowledge, we have the perfect platform for you.</p>
+
+                <div class="features-list">
+                    <div class="feature-item">
+                        <span class="icon">🚀</span>
+                        <div>
+                            <h3>Fast Onboarding</h3>
+                            <p>Get started in minutes with our streamlined process</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="icon">💎</span>
+                        <div>
+                            <h3>Premium Quality</h3>
+                            <p>Curated content and expert instructors</p>
+                        </div>
+                    </div>
+                    <div class="feature-item">
+                        <span class="icon">🛡️</span>
+                        <div>
+                            <h3>Secure Platform</h3>
+                            <p>Enterprise-grade security for your data</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-footer">
+                <p>© 2024 Kankei.</p>
+            </div>
+        </div>
+
+        <!-- Right Side: Forms -->
+        <div class="form-side">
+            <div class="form-card">
+                <div class="form-header">
+                    <a routerLink="/" class="back-link">← Back to Home</a>
+                    <h2>Create Account</h2>
+                    <p>Choose your role to get started</p>
+                </div>
+
+                <div class="role-selector">
+                    <button class="role-btn" [class.active]="activeTab === 'client'" (click)="activeTab = 'client'">
+                        <span class="role-icon">🏢</span>
+                        Client
+                    </button>
+                    <button class="role-btn" [class.active]="activeTab === 'trainer'" (click)="activeTab = 'trainer'">
+                        <span class="role-icon">👨‍🏫</span>
+                        Trainer
+                    </button>
+                </div>
+
+                <!-- System Messages -->
+                <div class="alert error" *ngIf="errorMessage">
+                    <span class="alert-icon">⚠️</span>
+                    <span>{{ errorMessage }}</span>
+                    <button class="close-btn" (click)="errorMessage = ''">×</button>
+                </div>
+
+                <div class="alert success" *ngIf="successMessage">
+                    <span class="alert-icon">✅</span>
+                    <span>{{ successMessage }}</span>
+                    <div class="login-prompt">
+                        <a routerLink="/login" class="login-link-btn">Proceed to Login →</a>
+                    </div>
+                </div>
+
+                <!-- Client Registration Form -->
+                <form *ngIf="activeTab === 'client'" (ngSubmit)="registerClient()" class="registration-form">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" [(ngModel)]="clientForm.name" name="name" placeholder="John Doe" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Work Email</label>
+                        <input type="email" [(ngModel)]="clientForm.email" name="email" placeholder="john@company.com"
+                            required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Password</label>
+                            <input type="password" [(ngModel)]="clientForm.password" name="password"
+                                placeholder="••••••••" required>
+                        </div>
+                        <div class="form-group half">
+                            <label>Confirm Password</label>
+                            <input type="password" [(ngModel)]="clientForm.confirmPassword" name="confirmPassword"
+                                placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" [(ngModel)]="clientForm.companyName" name="companyName"
+                            placeholder="Tech Corp Inc." required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Company Size</label>
+                            <select [(ngModel)]="clientForm.companySize" name="companySize" required>
+                                <option value="">Select Size</option>
+                                <option value="1-50">1-50 employees</option>
+                                <option value="51-200">51-200 employees</option>
+                                <option value="201-500">201-500 employees</option>
+                                <option value="500+">500+ employees</option>
+                            </select>
+                        </div>
+                        <div class="form-group half">
+                            <label>Industry</label>
+                            <select [(ngModel)]="clientForm.industry" name="industry" required>
+                                <option value="">Select Industry</option>
+                                <option value="Technology">Technology</option>
+                                <option value="Finance">Finance</option>
+                                <option value="Healthcare">Healthcare</option>
+                                <option value="Education">Education</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="clientTerms" [(ngModel)]="clientForm.acceptTerms" name="acceptTerms"
+                            required>
+                        <label for="clientTerms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy
+                                Policy</a></label>
+                    </div>
+
+                    <button type="submit" class="btn-submit" [disabled]="isLoading">
+                        <span class="spinner" *ngIf="isLoading"></span>
+                        {{ isLoading ? 'Creating Account...' : 'Register as Client' }}
+                    </button>
+                </form>
+
+                <!-- Trainer Registration Form -->
+                <form *ngIf="activeTab === 'trainer'" (ngSubmit)="registerTrainer()" class="registration-form">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" [(ngModel)]="trainerForm.name" name="name" placeholder="Alice Smith"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" [(ngModel)]="trainerForm.email" name="email" placeholder="alice@example.com"
+                            required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Password</label>
+                            <input type="password" [(ngModel)]="trainerForm.password" name="password"
+                                placeholder="••••••••" required>
+                        </div>
+                        <div class="form-group half">
+                            <label>Confirm Password</label>
+                            <input type="password" [(ngModel)]="trainerForm.confirmPassword" name="confirmPassword"
+                                placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" [(ngModel)]="trainerForm.phone" name="phone" placeholder="+91 98765 43210"
+                            required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label>Experience (Years)</label>
+                            <input type="number" [(ngModel)]="trainerForm.experience" name="experience"
+                                placeholder="e.g. 5" required>
+                        </div>
+                        <div class="form-group half">
+                            <label>Primary Skill</label>
+                            <input type="text" [(ngModel)]="trainerForm.expertise" name="expertise"
+                                placeholder="e.g. Java" required>
+                        </div>
+                    </div>
+
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="trainerTerms" [(ngModel)]="trainerForm.acceptTerms"
+                            name="acceptTerms" required>
+                        <label for="trainerTerms">I agree to the <a href="#">Terms of Service</a> and <a
+                                href="#">Privacy Policy</a></label>
+                    </div>
+
+                    <button type="submit" class="btn-submit" [disabled]="isLoading">
+                        <span class="spinner" *ngIf="isLoading"></span>
+                        {{ isLoading ? 'Creating Account...' : 'Register as Trainer' }}
+                    </button>
+                </form>
+
+                <div class="form-footer">
+                    <p>Already have an account? <a routerLink="/login">Sign in</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

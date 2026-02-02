@@ -1,0 +1,294 @@
+<header class="page-header">
+    <div class="header-content">
+        <h1>Client Dashboard</h1>
+        <p>Request trainings, manage purchase orders and invoices</p>
+    </div>
+    <button class="btn-new" (click)="showRequestModal = true">
+        <span class="icon">+</span> New Training Request
+    </button>
+</header>
+
+<div class="card-grid">
+    <!-- Training Requests -->
+    <section class="card">
+        <div class="card-header">
+            <h3>Training Requests</h3>
+            <span class="count-badge">{{ data.enrollments().length }}</span>
+        </div>
+        <div class="list">
+            @for (enr of data.enrollments(); track enr.enrollmentId) {
+            <div class="item">
+                <div class="details">
+                    <span class="id">{{ enr.enrollmentId }}</span>
+                    <span class="title">{{ enr.technology }}</span>
+                    <span class="meta">
+                        <svg class="icon-sm" viewBox="0 0 20 20" fill="currentColor">
+                            <path
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" />
+                        </svg>
+                        {{ enr.duration }}
+                    </span>
+                </div>
+                <div class="actions">
+                    <span class="badge" [class]="enr.status.toLowerCase()">{{ enr.status }}</span>
+                    @if (enr.status === 'Approved' && !hasPoForEnrollment(enr.enrollmentId)) {
+                    <button class="btn-outline" (click)="openPoModal(enr)">Create PO</button>
+                    }
+                    @if (hasPoForEnrollment(enr.enrollmentId)) {
+                    <span class="badge po-created">PO Created</span>
+                    }
+                </div>
+            </div>
+            } @empty {
+            <div class="empty">
+                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p>No training requests yet</p>
+                <span class="empty-hint">Click "New Training Request" to get started</span>
+            </div>
+            }
+        </div>
+    </section>
+
+    <!-- Purchase Orders -->
+    <section class="card">
+        <div class="card-header">
+            <h3>My Purchase Orders</h3>
+            <span class="count-badge">{{ data.clientPos().length }}</span>
+        </div>
+        <div class="list">
+            @for (po of data.clientPos(); track po.poId) {
+            <div class="item po-item">
+                <div class="details">
+                    <span class="id">{{ po.poId }}</span>
+                    <span class="title">{{ po.technology }}</span>
+                    <span class="amount">₹{{ po.cost | number }}</span>
+                </div>
+                <div class="po-status">
+                    <div class="status-timeline">
+                        <div class="timeline-step" [class.active]="true" [class.completed]="po.status !== 'Submitted'">
+                            <div class="step-dot"></div>
+                            <span>Submitted</span>
+                        </div>
+                        <div class="timeline-line" [class.active]="po.status === 'Accepted'"></div>
+                        <div class="timeline-step" [class.active]="po.status === 'Accepted'"
+                            [class.rejected]="po.status === 'Rejected'">
+                            <div class="step-dot"></div>
+                            <span>{{ po.status === 'Rejected' ? 'Rejected' : 'Accepted' }}</span>
+                        </div>
+                    </div>
+                    <span class="badge" [class]="po.status.toLowerCase()">{{ po.status }}</span>
+                </div>
+            </div>
+            } @empty {
+            <div class="empty">
+                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <p>No purchase orders submitted</p>
+                <span class="empty-hint">Create a PO after your training request is approved</span>
+            </div>
+            }
+        </div>
+    </section>
+
+    <!-- Invoices Received -->
+    <section class="card invoice-card">
+        <div class="card-header">
+            <h3>Invoices from Kankei</h3>
+            <span class="count-badge">{{ data.clientInvoices().length }}</span>
+        </div>
+        <div class="list">
+            @for (inv of data.clientInvoices(); track inv.invoiceId) {
+            <div class="item invoice-item">
+                <div class="details">
+                    <span class="id">{{ inv.invoiceId }}</span>
+                    <span class="amount highlight">₹{{ inv.totalAmount | number }}</span>
+                    <span class="meta">
+                        <svg class="icon-sm" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Due: {{ inv.dueDate | date:'mediumDate' }}
+                    </span>
+                </div>
+                <div class="actions">
+                    <span class="badge" [class]="inv.status.toLowerCase()">{{ inv.status }}</span>
+                    <button class="btn-view" (click)="openInvoiceModal(inv)">View Details</button>
+                    @if (inv.status === 'Sent') {
+                    <button class="btn-accept" (click)="acceptInvoice(inv)">Accept Invoice</button>
+                    }
+                </div>
+            </div>
+            } @empty {
+            <div class="empty">
+                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
+                </svg>
+                <p>No invoices received yet</p>
+                <span class="empty-hint">Invoices will appear here after training completion</span>
+            </div>
+            }
+        </div>
+    </section>
+</div>
+
+<!-- Training Request Modal -->
+@if (showRequestModal) {
+<div class="modal-overlay" (click)="showRequestModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Request Training</h3>
+            <button class="modal-close" (click)="showRequestModal = false">&times;</button>
+        </div>
+        <form (ngSubmit)="submitRequest()">
+            <div class="form-group">
+                <label>Technology</label>
+                <input type="text" [(ngModel)]="requestForm.technology" name="technology"
+                    placeholder="e.g., Angular, React, Python" required>
+            </div>
+            <div class="form-group">
+                <label>Duration</label>
+                <input type="text" [(ngModel)]="requestForm.duration" name="duration" placeholder="e.g., 40 Hours"
+                    required>
+            </div>
+            <div class="form-group">
+                <label>Budget (₹)</label>
+                <input type="number" [(ngModel)]="requestForm.budget" name="budget" placeholder="Enter your budget">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" (click)="showRequestModal = false">Cancel</button>
+                <button type="submit" class="btn-primary">Submit Request</button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+<!-- PO Creation Modal -->
+@if (showPoModal) {
+<div class="modal-overlay" (click)="showPoModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Create Purchase Order</h3>
+            <button class="modal-close" (click)="showPoModal = false">&times;</button>
+        </div>
+        <form (ngSubmit)="submitPO()">
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>Enrollment ID</label>
+                    <input type="text" [(ngModel)]="poForm.enrollmentId" name="enrollmentId" readonly class="readonly">
+                </div>
+                <div class="form-group half">
+                    <label>Technology</label>
+                    <input type="text" [(ngModel)]="poForm.technology" name="technology" readonly class="readonly">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>Duration</label>
+                    <input type="text" [(ngModel)]="poForm.duration" name="duration" readonly class="readonly">
+                </div>
+                <div class="form-group half">
+                    <label>Cost (₹)</label>
+                    <input type="number" [(ngModel)]="poForm.cost" name="cost" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Payment Terms</label>
+                <select [(ngModel)]="poForm.paymentTerms" name="paymentTerms" required>
+                    <option value="Net 15">Net 15</option>
+                    <option value="Net 30">Net 30</option>
+                    <option value="Net 45">Net 45</option>
+                    <option value="Immediate">Immediate</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" (click)="showPoModal = false">Cancel</button>
+                <button type="submit" class="btn-primary">Submit PO</button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+<!-- Invoice Details Modal -->
+@if (showInvoiceModal && selectedInvoice) {
+<div class="modal-overlay" (click)="showInvoiceModal = false">
+    <div class="modal invoice-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Invoice Details</h3>
+            <button class="modal-close" (click)="showInvoiceModal = false">&times;</button>
+        </div>
+        <div class="invoice-details">
+            <div class="invoice-header-info">
+                <div class="invoice-id">{{ selectedInvoice.invoiceId }}</div>
+                <span class="badge large" [class]="selectedInvoice.status.toLowerCase()">{{ selectedInvoice.status
+                    }}</span>
+            </div>
+
+            <div class="invoice-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Enrollment ID</span>
+                    <span class="meta-value">{{ selectedInvoice.enrollmentId }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">PO Reference</span>
+                    <span class="meta-value">{{ selectedInvoice.clientPoId }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Due Date</span>
+                    <span class="meta-value">{{ selectedInvoice.dueDate | date:'mediumDate' }}</span>
+                </div>
+            </div>
+
+            <div class="invoice-breakdown">
+                <div class="breakdown-row">
+                    <span>Base Amount</span>
+                    <span>₹{{ selectedInvoice.baseAmount | number }}</span>
+                </div>
+                <div class="breakdown-row">
+                    <span>Tax (GST 18%)</span>
+                    <span>₹{{ selectedInvoice.tax | number }}</span>
+                </div>
+                <div class="breakdown-row total">
+                    <span>Total Amount</span>
+                    <span>₹{{ selectedInvoice.totalAmount | number }}</span>
+                </div>
+            </div>
+
+            <div class="invoice-actions">
+                @if (selectedInvoice.status === 'Sent') {
+                <button class="btn-accept-large" (click)="acceptInvoice(selectedInvoice); showInvoiceModal = false">
+                    Accept Invoice & Proceed to Payment
+                </button>
+                } @else if (selectedInvoice.status === 'Accepted') {
+                <div class="status-message success">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Invoice accepted. Awaiting payment confirmation from admin.
+                </div>
+                } @else if (selectedInvoice.status === 'Paid') {
+                <div class="status-message paid">
+                    <svg viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Payment completed. Thank you!
+                </div>
+                }
+                <button class="btn-secondary" (click)="showInvoiceModal = false">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+}

@@ -1,0 +1,182 @@
+    <header class="page-header">
+      <div class="header-content">
+        <h1>Trainer Dashboard</h1>
+        <p>Manage your trainings, purchase orders, and invoices</p>
+      </div>
+    </header>
+
+    <!-- Stats Overview -->
+    <div class="stats-grid">
+      <div class="card stat-card">
+        <div class="label">Active Trainings</div>
+        <div class="value">{{ data.enrollments().length }}</div>
+      </div>
+      <div class="card stat-card highlight">
+        <div class="label">Pending POs</div>
+        <div class="value">{{ pendingPOsCount }}</div>
+        <div class="hint">Awaiting your action</div>
+      </div>
+      <div class="card stat-card">
+        <div class="label">Total Earnings</div>
+        <div class="value">₹{{ totalEarnings | number }}</div>
+      </div>
+    </div>
+
+    <div class="card-grid">
+      <!-- Purchase Orders - Primary Focus -->
+      <section class="card po-card">
+        <div class="card-header">
+          <h3>My Purchase Orders</h3>
+          <span class="count-badge">{{ data.trainerPos().length }}</span>
+        </div>
+        <div class="list">
+          @for (po of data.trainerPos(); track po.poId) {
+            <div class="item po-item" [class.pending]="po.status === 'Sent'" [class.new]="po.status === 'Generated'">
+              @if (po.status === 'Sent') {
+                <div class="new-badge">Action Required</div>
+              }
+              @if (po.status === 'Generated') {
+                <div class="new-badge pending">Pending from Admin</div>
+              }
+              <div class="po-header">
+                <span class="id">{{ po.poId }}</span>
+                <span class="badge" [class]="po.status.toLowerCase()">{{ po.status }}</span>
+              </div>
+              <div class="po-details">
+                <div class="detail-row">
+                  <span class="label">Enrollment</span>
+                  <span class="value">{{ po.enrollmentId }}</span>
+                </div>
+                <div class="detail-row">
+                  <span class="label">Payment Type</span>
+                  <span class="value">{{ po.paymentType }}</span>
+                </div>
+                <div class="detail-row amount-row">
+                  <span class="label">Amount</span>
+                  <span class="value amount">₹{{ po.totalAmount | number }}</span>
+                </div>
+              </div>
+              <div class="po-actions">
+                @if (po.status === 'Sent') {
+                  <button class="btn-accept" (click)="acceptPo(po.poId)">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                    Accept PO
+                  </button>
+                }
+                @if (po.status === 'Generated') {
+                  <span class="waiting-text">Waiting for admin to send...</span>
+                }
+                @if (po.status === 'Accepted' && !hasInvoiceForPO(po.poId)) {
+                  <button class="btn-invoice" (click)="openInvoiceModal(po)">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a1 1 0 01-1.707.707L12 14.414l-2.293 2.293a1 1 0 01-1.414 0L6 14.414l-2.293 2.293A1 1 0 013 16V4zm2 0v9.586l1.293-1.293a1 1 0 011.414 0L10 13.586l1.293-1.293a1 1 0 011.414 0L14 13.586V4H6z" clip-rule="evenodd"/></svg>
+                    Create Invoice
+                  </button>
+                }
+                @if (po.status === 'Accepted' && hasInvoiceForPO(po.poId)) {
+                  <span class="completed-text">
+                    <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                    Invoice Submitted
+                  </span>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="empty">
+              <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <p>No purchase orders yet</p>
+              <span class="hint">Purchase orders will appear here when admin assigns you to a training</span>
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Right Column -->
+      <div class="right-column">
+        <!-- Assigned Trainings -->
+        <section class="card">
+          <div class="card-header">
+            <h3>Assigned Trainings</h3>
+            <span class="count-badge">{{ data.enrollments().length }}</span>
+          </div>
+          <div class="list compact">
+            @for (enr of data.enrollments(); track enr.enrollmentId) {
+              <div class="item">
+                <div class="details">
+                  <span class="id">{{ enr.enrollmentId }}</span>
+                  <span class="title">{{ enr.technology }}</span>
+                  <span class="client">Client: {{ enr.clientName }}</span>
+                </div>
+                <span class="badge" [class]="enr.status.toLowerCase()">{{ enr.status }}</span>
+              </div>
+            } @empty {
+              <div class="empty small">No trainings assigned</div>
+            }
+          </div>
+        </section>
+
+        <!-- My Invoices -->
+        <section class="card">
+          <div class="card-header">
+            <h3>My Invoices</h3>
+            <span class="count-badge">{{ data.trainerInvoices().length }}</span>
+          </div>
+          <div class="list compact">
+            @for (inv of data.trainerInvoices(); track inv.invoiceId) {
+              <div class="item">
+                <div class="details">
+                  <span class="id">{{ inv.invoiceId }}</span>
+                  <span class="meta">₹{{ inv.amount | number }}</span>
+                </div>
+                <span class="badge" [class]="inv.status.toLowerCase()">{{ inv.status }}</span>
+              </div>
+            } @empty {
+              <div class="empty small">No invoices submitted yet</div>
+            }
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Invoice Modal -->
+    @if (showInvoiceModal && selectedPO) {
+      <div class="modal-overlay" (click)="closeModal()">
+        <div class="modal" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Create Invoice</h3>
+            <button class="modal-close" (click)="closeModal()">&times;</button>
+          </div>
+          <form (ngSubmit)="submitInvoice()">
+            <div class="po-summary">
+              <div class="summary-row">
+                <span class="label">PO ID</span>
+                <span class="value">{{ selectedPO.poId }}</span>
+              </div>
+              <div class="summary-row">
+                <span class="label">Enrollment</span>
+                <span class="value">{{ selectedPO.enrollmentId }}</span>
+              </div>
+              <div class="summary-row highlight">
+                <span class="label">PO Amount</span>
+                <span class="value">₹{{ selectedPO.totalAmount | number }}</span>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Hours Worked</label>
+              <input type="number" [(ngModel)]="invoiceForm.hoursWorked" name="hoursWorked" 
+                     placeholder="Enter hours worked" required min="1">
+            </div>
+            <div class="form-group">
+              <label>Invoice Amount (₹)</label>
+              <input type="number" [(ngModel)]="invoiceForm.amount" name="amount" 
+                     [max]="selectedPO.totalAmount" required>
+              <span class="field-hint">Maximum: ₹{{ selectedPO.totalAmount | number }}</span>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn-secondary" (click)="closeModal()">Cancel</button>
+              <button type="submit" class="btn-primary">Submit Invoice</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }

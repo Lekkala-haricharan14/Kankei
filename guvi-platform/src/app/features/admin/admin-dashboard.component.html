@@ -1,0 +1,232 @@
+<header class="page-header">
+    <h1>Admin Dashboard</h1>
+    <p>Overview of financial operations and enrollments</p>
+</header>
+
+<div class="stats-grid">
+    <div class="card stat-card">
+        <div class="label">Total Revenue</div>
+        <div class="value">₹ {{ totalRevenue() | number }}</div>
+        <div class="trend up">From client invoices</div>
+    </div>
+    <div class="card stat-card">
+        <div class="label">Active Enrollments</div>
+        <div class="value">{{ data.enrollments().length }}</div>
+    </div>
+    <div class="card stat-card warning">
+        <div class="label">Pending Client POs</div>
+        <div class="value">{{ pendingClientPos() }}</div>
+    </div>
+    <div class="card stat-card info">
+        <div class="label">Pending Invoices</div>
+        <div class="value">{{ pendingInvoices() }}</div>
+    </div>
+</div>
+
+<section class="recent-section">
+    <h2>Recent Enrollments</h2>
+    <div class="card table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Enrollment ID</th>
+                    <th>Client</th>
+                    <th>Technology</th>
+                    <th>Trainer</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (enr of data.enrollments(); track enr.enrollmentId) {
+                <tr>
+                    <td class="font-mono">{{ enr.enrollmentId }}</td>
+                    <td>{{ enr.clientName }}</td>
+                    <td>{{ enr.technology }}</td>
+                    <td>{{ enr.trainerName || '-' }}</td>
+                    <td>
+                        <span class="badge" [class]="enr.status.toLowerCase()">{{ enr.status }}</span>
+                    </td>
+                    <td>
+                        @if (enr.status === 'Requested') {
+                        <button class="btn-sm primary" (click)="approveEnrollment(enr.enrollmentId)">Approve</button>
+                        } @else {
+                        <button class="btn-sm">View</button>
+                        }
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6" class="empty">No enrollments found</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<section class="recent-section">
+    <h2>Client Purchase Orders</h2>
+    <div class="card table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>PO ID</th>
+                    <th>Enrollment</th>
+                    <th>Client</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (po of data.clientPos(); track po.poId) {
+                <tr>
+                    <td class="font-mono">{{ po.poId }}</td>
+                    <td>{{ po.enrollmentId }}</td>
+                    <td>{{ po.clientName }}</td>
+                    <td>₹{{ po.cost | number }}</td>
+                    <td>
+                        <span class="badge" [class]="po.status.toLowerCase()">{{ po.status }}</span>
+                    </td>
+                    <td>
+                        @if (po.status === 'Submitted') {
+                        <button class="btn-sm primary" (click)="openAcceptModal(po)">Accept</button>
+                        <button class="btn-sm danger" (click)="rejectPO(po.poId)">Reject</button>
+                        } @else if (po.status === 'Accepted') {
+                        <span class="info-text">
+                            Commission: {{ po.commissionPercent }}% | TPO: {{ po.trainerPoId }}
+                        </span>
+                        }
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6" class="empty">No purchase orders found</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Trainer POs Section -->
+<section class="recent-section">
+    <h2>Trainer Purchase Orders</h2>
+    <div class="card table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>PO ID</th>
+                    <th>Enrollment</th>
+                    <th>Trainer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (po of data.trainerPos(); track po.poId) {
+                <tr>
+                    <td class="font-mono">{{ po.poId }}</td>
+                    <td>{{ po.enrollmentId }}</td>
+                    <td>{{ po.trainerName }}</td>
+                    <td>₹{{ po.totalAmount | number }}</td>
+                    <td>
+                        <span class="badge" [class]="po.status.toLowerCase()">{{ po.status }}</span>
+                    </td>
+                    <td>
+                        @if (po.status === 'Generated') {
+                        <button class="btn-sm primary" (click)="sendTrainerPO(po.poId)">Send to Trainer</button>
+                        }
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6" class="empty">No trainer POs found</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Accept PO Modal -->
+@if (showAcceptModal && selectedPO) {
+<div class="modal-overlay" (click)="showAcceptModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Accept Client PO</h3>
+            <button class="modal-close" (click)="showAcceptModal = false">&times;</button>
+        </div>
+        <form (ngSubmit)="acceptPOWithCommission()">
+            <div class="po-summary">
+                <div class="summary-row">
+                    <span class="label">PO ID</span>
+                    <span class="value">{{ selectedPO.poId }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Client</span>
+                    <span class="value">{{ selectedPO.clientName }}</span>
+                </div>
+                <div class="summary-row">
+                    <span class="label">Technology</span>
+                    <span class="value">{{ selectedPO.technology }}</span>
+                </div>
+                <div class="summary-row highlight">
+                    <span class="label">Client Amount</span>
+                    <span class="value">₹{{ selectedPO.cost | number }}</span>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h4>Commission Settings</h4>
+                <div class="form-group">
+                    <label>Commission Percentage (%)</label>
+                    <input type="number" [(ngModel)]="acceptForm.commissionPercent" name="commission" min="0" max="100"
+                        required (ngModelChange)="calculateAmounts()">
+                </div>
+
+                <div class="amount-breakdown">
+                    <div class="breakdown-row">
+                        <span>Commission Amount</span>
+                        <span class="amount">₹{{ commissionAmount() | number }}</span>
+                    </div>
+                    <div class="breakdown-row trainer-amount">
+                        <span>Trainer Amount</span>
+                        <span class="amount">₹{{ trainerAmount() | number }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h4>Assign Trainer</h4>
+                <div class="form-group">
+                    <label>Select Trainer</label>
+                    <select [(ngModel)]="acceptForm.trainerId" name="trainer" required
+                        (ngModelChange)="onTrainerSelect($event)">
+                        <option value="">-- Select Trainer --</option>
+                        @for (trainer of trainers(); track trainer._id) {
+                        <option [value]="trainer._id">{{ trainer.name }} ({{ trainer.email }})</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Payment Type</label>
+                    <select [(ngModel)]="acceptForm.paymentType" name="paymentType" required>
+                        <option value="Fixed">Fixed Amount</option>
+                        <option value="Hourly">Hourly Rate</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" (click)="showAcceptModal = false">Cancel</button>
+                <button type="submit" class="btn-primary" [disabled]="!acceptForm.trainerId">
+                    Accept & Create Trainer PO
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+}

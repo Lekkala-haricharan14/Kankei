@@ -1,0 +1,69 @@
+<div class="login-container">
+    <div class="login-card">
+        <a routerLink="/" class="back-link">← Back to Home</a>
+        <div class="brand">Kankei</div>
+        <h2>Welcome Back</h2>
+        <p class="subtitle">Sign in to continue</p>
+
+        <!-- Error Message -->
+        <div class="alert error" *ngIf="errorMessage">
+            <span class="alert-icon">⚠️</span>
+            <span class="alert-text">{{ errorMessage }}</span>
+            <button type="button" class="alert-close" (click)="errorMessage = ''">×</button>
+        </div>
+
+        <!-- Success Message -->
+        <div class="alert success" *ngIf="successMessage">
+            <span class="alert-icon">✅</span>
+            <span class="alert-text">{{ successMessage }}</span>
+            <button type="button" class="alert-close" (click)="successMessage = ''">×</button>
+        </div>
+
+        <form (ngSubmit)="onLogin()" class="login-form">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" [(ngModel)]="email" name="email" placeholder="Enter your email" required
+                    [class.input-error]="emailError">
+                <span class="field-error" *ngIf="emailError">{{ emailError }}</span>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" [(ngModel)]="password" name="password"
+                    placeholder="Enter your password" required [class.input-error]="passwordError">
+                <span class="field-error" *ngIf="passwordError">{{ passwordError }}</span>
+            </div>
+
+            <button type="submit" class="btn-login" [disabled]="isLoading">
+                <span class="spinner" *ngIf="isLoading"></span>
+                {{ isLoading ? 'Signing in...' : 'Sign In' }}
+            </button>
+        </form>
+
+        <p class="register-link">
+            Don't have an account? <a routerLink="/enroll">Register here</a>
+        </p>
+
+        <div class="divider">
+            <span>or use demo accounts</span>
+        </div>
+
+        <div class="demo-accounts">
+            <button type="button" (click)="quickLogin('admin@guvi.in', 'admin123')" class="quick-btn admin"
+                [disabled]="isLoading">
+                <span class="role-icon">👑</span>
+                <span class="role-text">Admin</span>
+            </button>
+            <button type="button" (click)="quickLogin('john@trainer.com', 'trainer123')" class="quick-btn trainer"
+                [disabled]="isLoading">
+                <span class="role-icon">👨‍🏫</span>
+                <span class="role-text">Trainer</span>
+            </button>
+            <button type="button" (click)="quickLogin('hr@techcorp.com', 'client123')" class="quick-btn client"
+                [disabled]="isLoading">
+                <span class="role-icon">🏢</span>
+                <span class="role-text">Client</span>
+            </button>
+        </div>
+    </div>
+</div>
