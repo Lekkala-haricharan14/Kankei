@@ -120,7 +120,7 @@
                     <span class="badge" [class]="inv.status.toLowerCase()">{{ inv.status }}</span>
                     <button class="btn-view" (click)="openInvoiceModal(inv)">View Details</button>
                     @if (inv.status === 'Sent') {
-                    <button class="btn-accept" (click)="acceptInvoice(inv)">Accept Invoice</button>
+                    <button class="btn-accept" (click)="openPaymentModal(inv)">Pay Invoice</button>
                     }
                 </div>
             </div>
@@ -264,8 +264,8 @@
 
             <div class="invoice-actions">
                 @if (selectedInvoice.status === 'Sent') {
-                <button class="btn-accept-large" (click)="acceptInvoice(selectedInvoice); showInvoiceModal = false">
-                    Accept Invoice & Proceed to Payment
+                <button class="btn-accept-large" (click)="openPaymentModal(selectedInvoice);">
+                    Pay Invoice
                 </button>
                 } @else if (selectedInvoice.status === 'Accepted') {
                 <div class="status-message success">
@@ -288,6 +288,38 @@
                 }
                 <button class="btn-secondary" (click)="showInvoiceModal = false">Close</button>
             </div>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Simulated Payment Modal -->
+@if (showPaymentModal && paymentInvoice) {
+<div class="modal-overlay" (click)="showPaymentModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>Pay Invoice {{ paymentInvoice.invoiceId }}</h3>
+            <button class="modal-close" (click)="showPaymentModal = false">&times;</button>
+        </div>
+        <div class="form-group">
+            <label>Amount</label>
+            <div class="amount">₹{{ paymentInvoice.totalAmount | number }}</div>
+        </div>
+        <div class="form-group">
+            <label>Payment Method</label>
+            <select [(ngModel)]="paymentForm.method" name="method">
+                <option value="Card">Card</option>
+                <option value="NetBanking">Net Banking</option>
+                <option value="UPI">UPI</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Reference (optional)</label>
+            <input type="text" [(ngModel)]="paymentForm.reference" name="reference" />
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" (click)="showPaymentModal = false">Cancel</button>
+            <button class="btn-primary" (click)="confirmPayment()">Confirm Payment (Simulated)</button>
         </div>
     </div>
 </div>

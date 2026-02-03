@@ -15,6 +15,15 @@ export class AdminDashboardComponent implements OnInit {
 
   showAcceptModal = false;
   selectedPO: ClientPO | null = null;
+  // Trainer invoice -> client invoice modal
+  showGenerateInvoiceModal = false;
+  selectedTrainerInvoice: any = null;
+  generateInvoiceForm: any = {
+    baseAmount: 0,
+    dueDate: new Date().toISOString().slice(0, 10),
+    clientPoId: '',
+    clientId: ''
+  };
   trainers = signal<Array<{ _id: string; name: string; email: string }>>([]);
 
   // Toast notification state
@@ -135,6 +144,61 @@ export class AdminDashboardComponent implements OnInit {
         alert('Trainer PO sent successfully!');
       },
       error: (err) => alert('Error: ' + err.error?.error)
+    });
+  }
+
+  // ====== Trainer Invoice -> Client Invoice ======
+  openGenerateInvoiceModal(inv: any) {
+    this.selectedTrainerInvoice = inv;
+    // Try to pre-fill client PO if exists
+    const clientPo = this.data.clientPos().find(p => p.enrollmentId === inv.enrollmentId);
+    this.generateInvoiceForm = {
+      baseAmount: clientPo ? clientPo.cost : inv.amount,
+      dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10), // +7 days
+      clientPoId: clientPo ? clientPo.poId : '',
+      clientId: clientPo ? (clientPo as any).clientId : ''
+    };
+    this.showGenerateInvoiceModal = true;
+  }
+
+  createClientInvoiceFromTrainer() {
+    if (!this.selectedTrainerInvoice) return;
+    const payload = {
+      enrollmentId: this.selectedTrainerInvoice.enrollmentId,
+      clientPoId: this.generateInvoiceForm.clientPoId,
+      clientId: this.generateInvoiceForm.clientId,
+      trainerInvoiceId: this.selectedTrainerInvoice.invoiceId,
+      baseAmount: Number(this.generateInvoiceForm.baseAmount),
+      dueDate: this.generateInvoiceForm.dueDate
+    };
+
+    this.data.createClientInvoice(payload).subscribe({
+      next: (created) => {
+        // Optionally send immediately
+        this.data.sendClientInvoice(created.invoiceId).subscribe({
+          next: () => {
+            this.showGenerateInvoiceModal = false;
+            this.data.loadClientInvoices();
+            this.data.loadTrainerInvoices();
+            alert('Client invoice created and sent to client successfully!');
+          },
+          error: (err) => {
+            console.error(err);
+            alert('Client invoice created but failed to send: ' + err.error?.error);
+          }
+        });
+      },
+      error: (err) => alert('Error creating client invoice: ' + err.error?.error)
+    });
+  }
+
+  updateTrainerInvoice(invoiceId: string, status: string) {
+    this.data.updateTrainerInvoiceStatus(invoiceId, status).subscribe({
+      next: () => {
+        this.data.loadTrainerInvoices();
+        this.showToastNotification(`Invoice ${invoiceId} marked ${status}`, 'success');
+      },
+      error: (err) => this.showToastNotification('Error: ' + (err.error?.error || 'Unknown'), 'error')
     });
   }
 

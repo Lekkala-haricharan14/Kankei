@@ -52,6 +52,8 @@ export interface TrainerInvoice {
     invoiceId: string;
     enrollmentId: string;
     trainerPoId: string;
+    trainerId?: string;
+    trainerName?: string;
     hoursWorked?: number;
     amount: number;
     invoiceDate: Date;
@@ -205,6 +207,11 @@ export class DataService {
 
     createClientInvoice(data: Partial<ClientInvoice>) {
         return this.http.post<ClientInvoice>(`${this.apiUrl}/invoices/client`, data, { headers: this.getHeaders() });
+    }
+
+    // Send client invoice (Admin)
+    sendClientInvoice(invoiceId: string) {
+        return this.http.patch<ClientInvoice>(`${this.apiUrl}/invoices/client/${invoiceId}/send`, {}, { headers: this.getHeaders() });
     }
 
     acceptClientInvoice(invoiceId: string) {
