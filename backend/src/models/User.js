@@ -6,6 +6,18 @@ const userSchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     role: { type: String, enum: ['Admin', 'Trainer', 'Client'], required: true },
+    status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
+
+    // Client-specific fields
+    companyName: { type: String },
+    companySize: { type: String },
+    industry: { type: String },
+
+    // Trainer-specific fields
+    phone: { type: String },
+    experience: { type: String },
+    expertise: { type: String },
+
     avatarUrl: String,
     createdAt: { type: Date, default: Date.now }
 });

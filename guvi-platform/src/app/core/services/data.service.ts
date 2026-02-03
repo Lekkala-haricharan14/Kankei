@@ -83,12 +83,14 @@ export class DataService {
     private trainerPosSignal = signal<TrainerPO[]>([]);
     private trainerInvoicesSignal = signal<TrainerInvoice[]>([]);
     private clientInvoicesSignal = signal<ClientInvoice[]>([]);
+    private pendingUsersSignal = signal<any[]>([]);
 
     readonly enrollments = this.enrollmentsSignal.asReadonly();
     readonly clientPos = this.clientPosSignal.asReadonly();
     readonly trainerPos = this.trainerPosSignal.asReadonly();
     readonly trainerInvoices = this.trainerInvoicesSignal.asReadonly();
     readonly clientInvoices = this.clientInvoicesSignal.asReadonly();
+    readonly pendingUsers = this.pendingUsersSignal.asReadonly();
 
     constructor(private http: HttpClient, private auth: AuthService) { }
 
@@ -207,6 +209,23 @@ export class DataService {
 
     acceptClientInvoice(invoiceId: string) {
         return this.http.patch<ClientInvoice>(`${this.apiUrl}/invoices/client/${invoiceId}/accept`, {}, { headers: this.getHeaders() });
+    }
+
+    // ============ USER APPROVAL (Admin only) ============
+    loadPendingUsers() {
+        this.http.get<any[]>(`${this.apiUrl}/auth/pending-users`, { headers: this.getHeaders() })
+            .subscribe({
+                next: (data) => this.pendingUsersSignal.set(data),
+                error: (err) => console.error('Error loading pending users:', err)
+            });
+    }
+
+    approveUser(userId: string) {
+        return this.http.patch<any>(`${this.apiUrl}/auth/users/${userId}/approve`, {}, { headers: this.getHeaders() });
+    }
+
+    rejectUser(userId: string) {
+        return this.http.patch<any>(`${this.apiUrl}/auth/users/${userId}/reject`, {}, { headers: this.getHeaders() });
     }
 }
 

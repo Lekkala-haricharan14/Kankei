@@ -2,7 +2,7 @@ import { Injectable, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, catchError, throwError } from 'rxjs';
 
 export type Role = 'Admin' | 'Trainer' | 'Client';
 
@@ -74,8 +74,32 @@ export class AuthService {
             );
     }
 
-    register(name: string, email: string, password: string, role: Role): Observable<AuthResponse> {
-        return this.http.post<AuthResponse>(`${this.apiUrl}/auth/register`, { name, email, password, role });
+    register(
+        name: string,
+        email: string,
+        password: string,
+        role: Role,
+        additionalFields?: {
+            companyName?: string;
+            companySize?: string;
+            industry?: string;
+            phone?: string;
+            experience?: string;
+            expertise?: string;
+        }
+    ): Observable<{ message: string; user: any }> {
+        console.log('🔵 Registration request starting...', { name, email, role, additionalFields });
+
+        const payload = { name, email, password, role, ...additionalFields };
+
+        return this.http.post<{ message: string; user: any }>(`${this.apiUrl}/auth/register`, payload)
+            .pipe(
+                tap(response => console.log('✅ Registration successful:', response)),
+                catchError((error: any) => {
+                    console.error('❌ Registration error:', error);
+                    return throwError(() => error);
+                })
+            );
     }
 
     logout() {

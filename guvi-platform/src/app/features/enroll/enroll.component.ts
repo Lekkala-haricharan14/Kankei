@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -14,6 +14,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class EnrollComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   activeTab: 'client' | 'trainer' = 'client';
   isLoading = false;
@@ -60,22 +61,48 @@ export class EnrollComponent {
     }
 
     this.isLoading = true;
-    // Note: Additional fields like companyName are not currently passed to auth service
-    this.auth.register(this.clientForm.name, this.clientForm.email, this.clientForm.password, 'Client')
-      .subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.successMessage = 'Your account has been created successfully. You can now login.';
+    this.cdr.detectChanges(); // Force UI update to show loading state
+    console.log('📤 Calling auth.register...');
+
+    this.auth.register(
+      this.clientForm.name,
+      this.clientForm.email,
+      this.clientForm.password,
+      'Client',
+      {
+        companyName: this.clientForm.companyName,
+        companySize: this.clientForm.companySize,
+        industry: this.clientForm.industry
+      }
+    ).subscribe({
+      next: (response) => {
+        console.log('✅ Registration next callback:', response);
+        console.log('📋 Response message:', response.message);
+        console.log('📋 Response user:', response.user);
+        this.isLoading = false;
+        this.cdr.detectChanges(); // Force UI update to hide loading state
+
+        // Defer success message to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+          this.successMessage = response.message || 'Registration successful. Please wait for admin approval before logging in.';
+          console.log('✅ Success message set to:', this.successMessage);
+          this.cdr.detectChanges(); // Force change detection after setting message
           this.clientForm = {
             name: '', email: '', password: '', confirmPassword: '',
             companyName: '', companySize: '', industry: '', acceptTerms: false
           };
-        },
-        error: (err) => {
-          this.isLoading = false;
-          this.handleError(err);
-        }
-      });
+        }, 0);
+      },
+      error: (err) => {
+        console.log('❌ Registration error callback:', err);
+        this.isLoading = false;
+        this.cdr.detectChanges(); // Force UI update on error
+        this.handleError(err);
+      },
+      complete: () => {
+        console.log('✔️ Registration observable completed');
+      }
+    });
   }
 
   registerTrainer() {
@@ -100,21 +127,42 @@ export class EnrollComponent {
     }
 
     this.isLoading = true;
-    this.auth.register(this.trainerForm.name, this.trainerForm.email, this.trainerForm.password, 'Trainer')
-      .subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.successMessage = 'Your account has been created successfully. You can now login.';
+    this.cdr.detectChanges();
+
+    this.auth.register(
+      this.trainerForm.name,
+      this.trainerForm.email,
+      this.trainerForm.password,
+      'Trainer',
+      {
+        phone: this.trainerForm.phone,
+        experience: this.trainerForm.experience,
+        expertise: this.trainerForm.expertise
+      }
+    ).subscribe({
+      next: (response) => {
+        console.log('✅ Trainer Registration next callback:', response);
+        console.log('📋 Trainer Response message:', response.message);
+        this.isLoading = false;
+        this.cdr.detectChanges();
+
+        // Defer success message to avoid ExpressionChangedAfterItHasBeenCheckedError
+        setTimeout(() => {
+          this.successMessage = response.message || 'Registration successful. Please wait for admin approval before logging in.';
+          console.log('✅ Trainer Success message set to:', this.successMessage);
+          this.cdr.detectChanges(); // Force change detection after setting message
           this.trainerForm = {
             name: '', email: '', password: '', confirmPassword: '',
             phone: '', experience: '', expertise: '', acceptTerms: false
           };
-        },
-        error: (err) => {
-          this.isLoading = false;
-          this.handleError(err);
-        }
-      });
+        }, 0);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.cdr.detectChanges();
+        this.handleError(err);
+      }
+    });
   }
 
   private handleError(err: any) {

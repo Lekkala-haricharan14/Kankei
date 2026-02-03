@@ -21,7 +21,61 @@
         <div class="label">Pending Invoices</div>
         <div class="value">{{ pendingInvoices() }}</div>
     </div>
+    <div class="card stat-card alert">
+        <div class="label">Pending User Approvals</div>
+        <div class="value">{{ pendingUsersCount() }}</div>
+    </div>
 </div>
+
+<!-- Pending Users Section -->
+@if (data.pendingUsers().length > 0) {
+<section class="recent-section">
+    <h2>Pending User Approvals</h2>
+    <div class="card table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Company/Expertise</th>
+                    <th>Registered</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (user of data.pendingUsers(); track user._id) {
+                <tr>
+                    <td>{{ user.name }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        <span class="badge" [class]="user.role.toLowerCase()">{{ user.role }}</span>
+                    </td>
+                    <td>
+                        @if (user.role === 'Client') {
+                        {{ user.companyName || '-' }} ({{ user.companySize || '-' }})
+                        } @else if (user.role === 'Trainer') {
+                        {{ user.expertise || '-' }} ({{ user.experience || '-' }} exp)
+                        } @else {
+                        -
+                        }
+                    </td>
+                    <td>{{ user.createdAt | date: 'short' }}</td>
+                    <td>
+                        <button class="btn-sm primary" (click)="showConfirmApprove(user._id)">Approve</button>
+                        <button class="btn-sm danger" (click)="showConfirmReject(user._id)">Reject</button>
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="6" class="empty">No pending users</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+}
 
 <section class="recent-section">
     <h2>Recent Enrollments</h2>
@@ -228,5 +282,46 @@
             </div>
         </form>
     </div>
+</div>
+}
+
+<!-- Confirmation Dialog -->
+@if (confirmAction) {
+<div class="modal-overlay" (click)="cancelConfirm()">
+    <div class="modal confirmation-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+            <h3>{{ confirmAction.action === 'approve' ? 'Approve User' : 'Reject User' }}</h3>
+            <button class="modal-close" (click)="cancelConfirm()">&times;</button>
+        </div>
+        <div class="modal-body">
+            @if (confirmAction.action === 'approve') {
+            <p>Are you sure you want to approve this user? They will be able to login immediately.</p>
+            } @else {
+            <p><strong>Warning:</strong> This will prevent the user from logging in. Are you sure?</p>
+            }
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn-secondary" (click)="cancelConfirm()">Cancel</button>
+            <button type="button" [class]="confirmAction.action === 'approve' ? 'btn-primary' : 'btn-danger'"
+                (click)="confirmApproveReject()">
+                {{ confirmAction.action === 'approve' ? 'Approve' : 'Reject' }}
+            </button>
+        </div>
+    </div>
+</div>
+}
+
+<!-- Toast Notification -->
+@if (showToast) {
+<div class="toast" [class]="toastType">
+    <div class="toast-content">
+        <span class="toast-icon">
+            @if (toastType === 'success') { ✓ }
+            @else if (toastType === 'error') { ✗ }
+            @else { ℹ }
+        </span>
+        <span class="toast-message">{{ toastMessage }}</span>
+    </div>
+    <button class="toast-close" (click)="showToast = false">&times;</button>
 </div>
 }

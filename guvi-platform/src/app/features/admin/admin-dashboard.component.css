@@ -406,3 +406,150 @@
         background: #f8fafc;
     }
 }
+
+.btn-danger {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.25rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.15s;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-1px);
+    }
+}
+
+/* Confirmation Modal (smaller than main modal) */
+.confirmation-modal {
+    max-width: 400px;
+
+    .modal-body {
+        padding: 1.5rem;
+
+        p {
+            margin: 0;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        strong {
+            color: #dc2626;
+        }
+    }
+}
+
+/* Toast Notification */
+.toast {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 300px;
+    max-width: 500px;
+    z-index: 9999;
+    animation: slideInRight 0.3s ease-out, fadeOut 0.3s ease-in 2.7s;
+    border-left: 4px solid #64748b;
+
+    &.success {
+        border-left-color: #16a34a;
+
+        .toast-icon {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+    }
+
+    &.error {
+        border-left-color: #ef4444;
+
+        .toast-icon {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+    }
+
+    &.info {
+        border-left-color: #2563eb;
+
+        .toast-icon {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+    }
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+}
+
+.toast-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    font-size: 1.25rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.toast-message {
+    color: #1e293b;
+    font-weight: 500;
+    font-size: 0.875rem;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.15s;
+
+    &:hover {
+        color: #64748b;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
+
+/* Alert stat card styling */
+.stat-card.alert .value {
+    color: #dc2626;
+}

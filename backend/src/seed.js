@@ -25,21 +25,30 @@ async function seed() {
             name: 'GUVI Admin',
             email: 'admin@guvi.in',
             password: 'admin123',
-            role: 'Admin'
+            role: 'Admin',
+            status: 'approved'
         });
 
         const trainer = await User.create({
             name: 'John Doe',
             email: 'john@trainer.com',
             password: 'trainer123',
-            role: 'Trainer'
+            role: 'Trainer',
+            status: 'approved',
+            phone: '+91 9876543210',
+            experience: '5',
+            expertise: 'Angular, React, Node.js'
         });
 
         const client = await User.create({
             name: 'Tech Corp',
             email: 'hr@techcorp.com',
             password: 'client123',
-            role: 'Client'
+            role: 'Client',
+            status: 'approved',
+            companyName: 'Tech Corp',
+            companySize: '201-500',
+            industry: 'Technology'
         });
 
         console.log('✅ Users created');

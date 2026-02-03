@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -14,6 +14,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class LoginComponent {
   private auth = inject(AuthService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   email = '';
   password = '';
@@ -59,21 +60,43 @@ export class LoginComponent {
       },
       error: (err) => {
         this.isLoading = false;
-        console.log('Login error:', err);
+        console.log('❌ Login error:', err);
+        console.log('📋 Error status:', err.status);
+        console.log('📋 Error object:', err.error);
+
+        // Handle pending/rejected users (403)
+        if (err.status === 403) {
+          if (err.error && typeof err.error === 'object' && err.error.error) {
+            this.errorMessage = err.error.error;
+          } else {
+            this.errorMessage = 'Your account is pending admin approval';
+          }
+        }
+        // Handle invalid credentials (401)
+        else if (err.status === 401) {
+          // Try to get the error message from the response
+          if (err.error && typeof err.error === 'object' && err.error.error) {
+            this.errorMessage = err.error.error;
+          } else {
+            this.errorMessage = 'Invalid email or password. Please try again.';
+          }
+        }
         // Handle different error response formats
-        if (err.error && typeof err.error === 'object' && err.error.error) {
+        else if (err.error && typeof err.error === 'object' && err.error.error) {
           this.errorMessage = err.error.error;
         } else if (err.error && typeof err.error === 'string') {
           this.errorMessage = err.error;
         } else if (err.message) {
           this.errorMessage = err.message;
-        } else if (err.status === 401) {
-          this.errorMessage = 'Invalid email or password. Please try again.';
         } else if (err.status === 0) {
           this.errorMessage = 'Unable to connect to server. Please check if the backend is running.';
         } else {
           this.errorMessage = 'Login failed. Please check your credentials.';
         }
+
+        console.log('✅ Error message set to:', this.errorMessage);
+        // Force Angular to detect the change and update the UI
+        this.cdr.detectChanges();
       }
     });
   }
