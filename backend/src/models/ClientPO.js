@@ -7,6 +7,8 @@ const clientPoSchema = new mongoose.Schema({
     clientName: { type: String, required: true },
     technology: { type: String, required: true },
     duration: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
     cost: { type: Number, required: true },
     paymentTerms: { type: String, required: true },
     status: {

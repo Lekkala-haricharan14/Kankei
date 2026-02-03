@@ -235,10 +235,12 @@
                     </td>
                     <td>
                         @if (inv.status === 'Created') {
-                        <button class="btn-sm primary" (click)="updateTrainerInvoice(inv.invoiceId, 'Verified')">Verify</button>
+                        <button class="btn-sm primary"
+                            (click)="updateTrainerInvoice(inv.invoiceId, 'Verified')">Verify</button>
                         <button class="btn-sm" (click)="openGenerateInvoiceModal(inv)">Create & Send to Client</button>
                         } @else if (inv.status === 'Verified') {
-                        <button class="btn-sm primary" (click)="updateTrainerInvoice(inv.invoiceId, 'Approved')">Approve</button>
+                        <button class="btn-sm primary"
+                            (click)="updateTrainerInvoice(inv.invoiceId, 'Approved')">Approve</button>
                         <button class="btn-sm" (click)="openGenerateInvoiceModal(inv)">Create & Send to Client</button>
                         } @else {
                         <button class="btn-sm" (click)="openGenerateInvoiceModal(inv)">Create & Send to Client</button>
@@ -338,6 +340,38 @@
             </div>
 
             <div class="form-section">
+                <h4>Assign Trainer</h4>
+                @if (isTrainerAlreadyAssigned()) {
+                <div class="info-box" style="background-color: #e3f2fd; border-color: #2196f3;">
+                    <p><strong>ℹ️ Trainer Already Assigned:</strong> This enrollment already has a trainer assigned from
+                        the enrollment approval process.</p>
+                </div>
+                }
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Select Trainer *</label>
+                        <select [(ngModel)]="acceptForm.trainerId" name="trainer" required
+                            [disabled]="isTrainerAlreadyAssigned()" (ngModelChange)="onTrainerSelectForPO($event)">
+                            <option value="">-- Select Trainer --</option>
+                            @for (trainer of trainers(); track trainer._id) {
+                            <option [value]="trainer._id">
+                                {{ trainer.name }} ({{ trainer.email }})
+                                @if (trainer.expertise) { - {{ trainer.expertise }} }
+                            </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Payment Type *</label>
+                        <select [(ngModel)]="acceptForm.paymentType" name="paymentType" required>
+                            <option value="Fixed">Fixed Amount</option>
+                            <option value="Hourly">Hourly Rate</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
                 <h4>Payment Terms</h4>
                 <div class="form-row">
                     <div class="form-group">
@@ -365,24 +399,26 @@
                 <h4>Additional Details</h4>
                 <div class="form-group">
                     <label>Deliverables</label>
-                    <textarea [(ngModel)]="acceptForm.deliverables" name="deliverables" rows="3" 
+                    <textarea [(ngModel)]="acceptForm.deliverables" name="deliverables" rows="3"
                         placeholder="List expected deliverables (e.g., Training materials, session recordings, assessments)"></textarea>
                 </div>
                 <div class="form-group">
                     <label>Special Notes / Terms</label>
-                    <textarea [(ngModel)]="acceptForm.notes" name="notes" rows="2" 
+                    <textarea [(ngModel)]="acceptForm.notes" name="notes" rows="2"
                         placeholder="Any special terms, conditions, or requirements"></textarea>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
                         <label>Travel Allowance (₹)</label>
-                        <input type="number" [(ngModel)]="acceptForm.travelAllowance" name="travelAllowance" min="0" step="500">
+                        <input type="number" [(ngModel)]="acceptForm.travelAllowance" name="travelAllowance" min="0"
+                            step="500">
                     </div>
                 </div>
             </div>
 
             <div class="info-box">
-                <p><strong>Note:</strong> After accepting this PO, you can assign a trainer from the Recent Enrollments section.</p>
+                <p><strong>Note:</strong> Accepting this PO will automatically assign the selected trainer and create a
+                    Trainer PO.</p>
             </div>
 
             <div class="modal-actions">
@@ -427,7 +463,7 @@
                         <option value="">-- Select Trainer --</option>
                         @for (trainer of availableTrainers(); track trainer._id) {
                         <option [value]="trainer._id">
-                            {{ trainer.name }} ({{ trainer.email }}) 
+                            {{ trainer.name }} ({{ trainer.email }})
                             @if (trainer.expertise) { - {{ trainer.expertise }} }
                         </option>
                         } @empty {
@@ -446,7 +482,8 @@
                     @if (assignTrainerForm.paymentType === 'Hourly') {
                     <div class="form-group">
                         <label>Hourly Rate (₹)</label>
-                        <input type="number" [(ngModel)]="assignTrainerForm.hourlyRate" name="hourlyRate" min="0" step="100">
+                        <input type="number" [(ngModel)]="assignTrainerForm.hourlyRate" name="hourlyRate" min="0"
+                            step="100">
                     </div>
                     }
                 </div>
@@ -467,7 +504,8 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Estimated Hours</label>
-                        <input type="number" [(ngModel)]="assignTrainerForm.estimatedHours" name="estimatedHours" min="0" step="1">
+                        <input type="number" [(ngModel)]="assignTrainerForm.estimatedHours" name="estimatedHours"
+                            min="0" step="1">
                     </div>
                     <div class="form-group">
                         <label>Location *</label>
@@ -484,7 +522,8 @@
                 <h4>Additional Requirements</h4>
                 <div class="form-checkboxes">
                     <label class="checkbox-label">
-                        <input type="checkbox" [(ngModel)]="assignTrainerForm.equipmentProvided" name="equipmentProvided">
+                        <input type="checkbox" [(ngModel)]="assignTrainerForm.equipmentProvided"
+                            name="equipmentProvided">
                         <span>Equipment Provided by Company</span>
                     </label>
                     <label class="checkbox-label">

@@ -232,6 +232,16 @@
             </div>
             <div class="form-row">
                 <div class="form-group half">
+                    <label>Start Date</label>
+                    <input type="date" [(ngModel)]="poForm.startDate" name="startDate" readonly class="readonly">
+                </div>
+                <div class="form-group half">
+                    <label>End Date</label>
+                    <input type="date" [(ngModel)]="poForm.endDate" name="endDate" readonly class="readonly">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group half">
                     <label>Duration</label>
                     <input type="text" [(ngModel)]="poForm.duration" name="duration" readonly class="readonly">
                 </div>

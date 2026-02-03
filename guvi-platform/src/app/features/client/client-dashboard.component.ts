@@ -41,6 +41,8 @@ export class ClientDashboardComponent implements OnInit {
     enrollmentId: '',
     technology: '',
     duration: '',
+    startDate: '',
+    endDate: '',
     cost: 0,
     paymentTerms: 'Net 30'
   };
@@ -63,11 +65,19 @@ export class ClientDashboardComponent implements OnInit {
     });
   }
 
+  formatDateForInput(date: any): string {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toISOString().split('T')[0];
+  }
+
   openPoModal(enr: any) {
     this.poForm = {
       enrollmentId: enr.enrollmentId,
       technology: enr.technology,
       duration: enr.duration,
+      startDate: this.formatDateForInput(enr.startDate),
+      endDate: this.formatDateForInput(enr.endDate),
       cost: enr.budget || 0,
       paymentTerms: 'Net 30'
     };

@@ -60,7 +60,12 @@ async function seed() {
             technology: 'Angular Development',
             trainerId: trainer._id,
             trainerName: 'John Doe',
-            duration: '40 Hours',
+            duration: '5 days',
+            startDate: new Date('2026-02-05'),
+            endDate: new Date('2026-02-09'),
+            numberOfPeople: 15,
+            trainingMode: 'Hybrid',
+            location: 'Chennai Office',
             budget: 50000,
             status: 'Ongoing'
         });
@@ -69,7 +74,12 @@ async function seed() {
             clientId: client._id,
             clientName: 'Tech Corp',
             technology: 'React Native',
-            duration: '30 Hours',
+            duration: '3 days',
+            startDate: new Date('2026-02-15'),
+            endDate: new Date('2026-02-17'),
+            numberOfPeople: 10,
+            trainingMode: 'Online',
+            budget: 30000,
             status: 'Requested'
         });
 
@@ -81,7 +91,9 @@ async function seed() {
             clientId: client._id,
             clientName: 'Tech Corp',
             technology: 'Angular Development',
-            duration: '40 Hours',
+            duration: '5 days',
+            startDate: enr1.startDate,
+            endDate: enr1.endDate,
             cost: 50000,
             paymentTerms: 'Net 30',
             status: 'Accepted'

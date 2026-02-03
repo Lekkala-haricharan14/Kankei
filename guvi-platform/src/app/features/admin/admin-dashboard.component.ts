@@ -29,14 +29,14 @@ export class AdminDashboardComponent implements OnInit {
   trainers = signal<Array<{ _id: string; name: string; email: string; expertise?: string }>>([]);
   availableTrainers = computed(() => {
     if (!this.selectedEnrollment) return [];
-    
+
     const assignedTrainerIds = this.data.enrollments()
       .filter(e => e.status !== 'Completed' && e.trainerId)
       .map(e => e.trainerId);
-    
+
     return this.trainers().filter(trainer => {
       const isAvailable = !assignedTrainerIds.includes(trainer._id);
-      const hasSkill = !trainer.expertise || 
+      const hasSkill = !trainer.expertise ||
         trainer.expertise.toLowerCase().includes(this.selectedEnrollment.technology.toLowerCase()) ||
         this.selectedEnrollment.technology.toLowerCase().includes(trainer.expertise.toLowerCase());
       return isAvailable && hasSkill;
@@ -53,6 +53,9 @@ export class AdminDashboardComponent implements OnInit {
 
   acceptForm = {
     commissionPercent: 20,
+    trainerId: '',
+    trainerName: '',
+    paymentType: 'Fixed' as 'Hourly' | 'Fixed',
     paymentTerms: 'Net 30' as 'Net 15' | 'Net 30' | 'Net 45' | 'Net 60',
     invoiceFrequency: 'Monthly' as 'Weekly' | 'Bi-weekly' | 'Monthly' | 'On Completion',
     deliverables: '',
@@ -99,6 +102,13 @@ export class AdminDashboardComponent implements OnInit {
     return this.selectedPO.cost - this.commissionAmount();
   });
 
+  isTrainerAlreadyAssigned(): boolean {
+    if (!this.selectedPO) return false;
+    const enrollment = this.data.enrollments().find(e => e.enrollmentId === this.selectedPO!.enrollmentId);
+    return !!(enrollment?.trainerId && enrollment?.trainerName);
+  }
+
+
   ngOnInit() {
     this.data.loadEnrollments();
     this.data.loadClientPos();
@@ -120,8 +130,15 @@ export class AdminDashboardComponent implements OnInit {
 
   openAcceptModal(po: ClientPO) {
     this.selectedPO = po;
+
+    // Find the enrollment for this PO to get trainer info
+    const enrollment = this.data.enrollments().find(e => e.enrollmentId === po.enrollmentId);
+
     this.acceptForm = {
       commissionPercent: 20,
+      trainerId: enrollment?.trainerId || '',
+      trainerName: enrollment?.trainerName || '',
+      paymentType: 'Fixed',
       paymentTerms: 'Net 30',
       invoiceFrequency: 'Monthly',
       deliverables: '',
@@ -133,19 +150,24 @@ export class AdminDashboardComponent implements OnInit {
 
   openAssignTrainerModal(enrollment: any) {
     this.selectedEnrollment = enrollment;
-    const today = new Date().toISOString().split('T')[0];
-    const threeMonthsLater = new Date();
-    threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
-    
+
+    // Format dates from enrollment
+    const formatDate = (date: any) => {
+      if (!date) return new Date().toISOString().split('T')[0];
+      const d = new Date(date);
+      return d.toISOString().split('T')[0];
+    };
+
     this.assignTrainerForm = {
       trainerId: '',
       trainerName: '',
       paymentType: 'Fixed',
-      startDate: today,
-      endDate: threeMonthsLater.toISOString().split('T')[0],
+      startDate: formatDate(enrollment.startDate),
+      endDate: formatDate(enrollment.endDate),
       estimatedHours: 0,
       hourlyRate: 0,
-      location: 'Remote',
+      location: enrollment.trainingMode === 'Online' ? 'Remote' :
+        enrollment.trainingMode === 'Offline' ? 'On-site' : 'Hybrid',
       equipmentProvided: false,
       requiresNDA: false
     };
@@ -161,14 +183,27 @@ export class AdminDashboardComponent implements OnInit {
     // Triggers recalculation via computed signals
   }
 
+  onTrainerSelectForPO(trainerId: string) {
+    const trainer = this.trainers().find(t => t._id === trainerId);
+    this.acceptForm.trainerName = trainer?.name || '';
+  }
+
   acceptPOWithCommission() {
     if (!this.selectedPO) return;
 
-    this.data.updateClientPOStatus(this.selectedPO.poId, 'Accepted').subscribe({
+    const payload = {
+      commissionPercent: this.acceptForm.commissionPercent,
+      trainerId: this.acceptForm.trainerId,
+      trainerName: this.acceptForm.trainerName,
+      paymentType: this.acceptForm.paymentType
+    };
+
+    this.data.acceptClientPOWithCommission(this.selectedPO.poId, payload).subscribe({
       next: () => {
         this.showAcceptModal = false;
         this.data.loadClientPos();
-        this.showToastNotification('Client PO accepted successfully!', 'success');
+        this.data.loadTrainerPos(); // Reload trainer POs as well
+        this.showToastNotification('Client PO accepted and Trainer PO created successfully!', 'success');
       },
       error: (err) => this.showToastNotification('Error: ' + (err.error?.error || 'Unknown error'), 'error')
     });
@@ -178,7 +213,7 @@ export class AdminDashboardComponent implements OnInit {
     if (!this.selectedEnrollment || !this.assignTrainerForm.trainerId) return;
 
     const trainer = this.trainers().find(t => t._id === this.assignTrainerForm.trainerId);
-    
+
     this.data.assignTrainerToEnrollment(this.selectedEnrollment.enrollmentId, {
       ...this.assignTrainerForm,
       trainerName: trainer?.name || ''
