@@ -12,6 +12,12 @@ export interface Enrollment {
     trainerId?: string;
     trainerName?: string;
     duration: string;
+    startDate: string | Date;
+    endDate: string | Date;
+    numberOfPeople: number;
+    trainingMode: 'Online' | 'Offline' | 'Hybrid';
+    location?: string;
+    remarks?: string;
     budget?: number;
     status: 'Requested' | 'Approved' | 'Ongoing' | 'Completed';
     createdAt: Date;
