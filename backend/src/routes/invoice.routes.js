@@ -104,9 +104,30 @@ router.get('/client', auth, async (req, res) => {
             return res.status(403).json({ error: 'Access denied' });
         }
 
-        const invoices = await ClientInvoice.find(query).sort({ dueDate: -1 });
-        res.json(invoices);
+        const invoices = await ClientInvoice.find(query)
+            .populate('clientId', 'name email companyName')
+            .sort({ dueDate: -1 })
+            .lean();
+
+        // Debug: Check what we're getting
+        console.log('Sample invoice with clientId:', JSON.stringify(invoices[0]?.clientId));
+
+        // Transform to include client info
+        const result = invoices.map(inv => {
+            const client = inv.clientId;
+            const clientName = client?.companyName || client?.name || '-';
+            const clientEmail = client?.email || '-';
+
+            return {
+                ...inv,
+                clientName,
+                clientEmail
+            };
+        });
+
+        res.json(result);
     } catch (error) {
+        console.error('Error fetching client invoices:', error);
         res.status(500).json({ error: error.message });
     }
 });

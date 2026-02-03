@@ -22,8 +22,8 @@ async function seed() {
 
         // Create Admin User
         const admin = await User.create({
-            name: 'GUVI Admin',
-            email: 'admin@guvi.in',
+            name: 'Kankei Admin',
+            email: 'admin@kankei.in',
             password: 'admin123',
             role: 'Admin',
             status: 'approved'

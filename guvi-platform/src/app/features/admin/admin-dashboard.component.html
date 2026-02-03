@@ -245,7 +245,8 @@
                         @if (inv.clientInvoiceCreated) {
                         <button class="btn-sm success" disabled>Sent to Client</button>
                         } @else {
-                        <button class="btn-sm primary" (click)="openGenerateInvoiceModal(inv)">Create & Send to Client</button>
+                        <button class="btn-sm primary" (click)="openGenerateInvoiceModal(inv)">Create & Send to
+                            Client</button>
                         }
                     </td>
                 </tr>
@@ -281,7 +282,10 @@
                 <tr>
                     <td class="font-mono">{{ inv.invoiceId }}</td>
                     <td>{{ inv.enrollmentId }}</td>
-                    <td>{{ inv.clientId }}</td>
+                    <td>
+                        <div>{{ inv.clientName }}</div>
+                        <div class="info-text" style="font-size: 0.85em;">{{ inv.clientEmail }}</div>
+                    </td>
                     <td>₹{{ inv.totalAmount | number }}</td>
                     <td>{{ inv.dueDate | date: 'short' }}</td>
                     <td>
@@ -289,7 +293,8 @@
                     </td>
                     <td>
                         @if (inv.status === 'Generated') {
-                        <button class="btn-sm primary" (click)="sendClientInvoiceToClient(inv.invoiceId)">Send to Client</button>
+                        <button class="btn-sm primary" (click)="sendClientInvoiceToClient(inv.invoiceId)">Send to
+                            Client</button>
                         } @else if (inv.status === 'Accepted') {
                         <button class="btn-sm success" disabled>Client Paid</button>
                         } @else if (inv.status === 'Paid') {

@@ -31,8 +31,8 @@
     right: 0;
     bottom: 0;
     left: 0;
-    background: radial-gradient(circle at 80% 20%, rgba(37, 99, 235, 0.15) 0%, transparent 40%),
-        radial-gradient(circle at 20% 80%, rgba(22, 163, 74, 0.15) 0%, transparent 40%);
+    background: radial-gradient(circle at 80% 20%, rgba(123, 18, 64, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 20% 80%, rgba(95, 13, 49, 0.15) 0%, transparent 40%);
     pointer-events: none;
 }
 
@@ -44,7 +44,7 @@
 }
 
 .brand .highlight {
-    color: #22c55e;
+    color: #f9a8d4;
 }
 
 .hero-content {
@@ -220,9 +220,9 @@
 }
 
 .alert.success {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    color: #15803d;
+    background: #fdf2f8;
+    border: 1px solid #f9a8d4;
+    color: #7B1240;
     flex-direction: column;
 }
 
@@ -246,7 +246,7 @@
 .login-link-btn {
     display: block;
     text-align: center;
-    background: #16a34a;
+    background: #7B1240;
     color: white;
     text-decoration: none;
     padding: 0.5rem;
@@ -256,7 +256,7 @@
 }
 
 .login-link-btn:hover {
-    background: #15803d;
+    background: #5F0D31;
 }
 
 /* Form Elements */
@@ -311,8 +311,8 @@ select {
 input:focus,
 select:focus {
     outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
+    border-color: #7B1240;
+    box-shadow: 0 0 0 3px rgb(123 18 64 / 0.1);
 }
 
 .checkbox-group {
@@ -334,7 +334,7 @@ select:focus {
 }
 
 .checkbox-group a {
-    color: #2563eb;
+    color: #7B1240;
     text-decoration: none;
 }
 
@@ -345,7 +345,7 @@ select:focus {
 .btn-submit {
     width: 100%;
     padding: 0.875rem;
-    background: #2563eb;
+    background: #7B1240;
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -360,7 +360,7 @@ select:focus {
 }
 
 .btn-submit:hover:not(:disabled) {
-    background: #1d4ed8;
+    background: #5F0D31;
 }
 
 .btn-submit:disabled {
@@ -391,7 +391,7 @@ select:focus {
 }
 
 .form-footer a {
-    color: #2563eb;
+    color: #7B1240;
     text-decoration: none;
     font-weight: 500;
 }

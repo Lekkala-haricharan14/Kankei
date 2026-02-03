@@ -1,6 +1,6 @@
 .home-container {
     min-height: 100vh;
-    background: linear-gradient(180deg, #f0fdf4 0%, #ffffff 50%);
+    background: linear-gradient(180deg, #fdf2f8 0%, #ffffff 50%);
 }
 
 .navbar {
@@ -19,7 +19,7 @@
 }
 
 .brand .highlight {
-    color: #16a34a;
+    color: #7B1240;
 }
 
 .nav-links {
@@ -40,18 +40,18 @@
 }
 
 .nav-link.active {
-    color: #16a34a;
+    color: #7B1240;
 }
 
 .btn-login {
-    background: #16a34a;
+    background: #7B1240;
     color: white !important;
     padding: 0.5rem 1.25rem;
     border-radius: 0.5rem;
 }
 
 .btn-login:hover {
-    background: #15803d;
+    background: #5F0D31;
 }
 
 .hero {
@@ -78,7 +78,7 @@
 }
 
 .hero-content .gradient-text {
-    background: linear-gradient(135deg, #16a34a 0%, #22d3ee 100%);
+    background: linear-gradient(135deg, #7B1240 0%, #ec4899 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -97,7 +97,7 @@
 }
 
 .btn-primary {
-    background: #16a34a;
+    background: #7B1240;
     color: white;
     padding: 0.875rem 2rem;
     border-radius: 0.5rem;
@@ -107,23 +107,23 @@
 }
 
 .btn-primary:hover {
-    background: #15803d;
+    background: #5F0D31;
     transform: translateY(-2px);
 }
 
 .btn-secondary {
     background: white;
-    color: #16a34a;
+    color: #7B1240;
     padding: 0.875rem 2rem;
     border-radius: 0.5rem;
     font-weight: 600;
     text-decoration: none;
-    border: 2px solid #16a34a;
+    border: 2px solid #7B1240;
     transition: all 0.2s;
 }
 
 .btn-secondary:hover {
-    background: #f0fdf4;
+    background: #fdf2f8;
 }
 
 .hero-visual {

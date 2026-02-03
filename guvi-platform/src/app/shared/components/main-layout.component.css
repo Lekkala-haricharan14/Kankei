@@ -49,7 +49,7 @@
 }
 
 .logo-text .highlight {
-    color: #16a34a;
+    color: #7B1240;
 }
 
 .toggle-btn {
@@ -91,8 +91,8 @@
 }
 
 .nav-links a.active {
-    background-color: #dcfce7;
-    color: #166534;
+    background-color: #fdf2f8;
+    color: #7B1240;
 }
 
 .nav-links .icon {
@@ -200,8 +200,8 @@
     }
 
     .user-badge {
-        background: #dcfce7;
-        color: #166534;
+        background: #fdf2f8;
+        color: #7B1240;
         padding: 0.25rem 0.75rem;
         border-radius: 1rem;
         font-size: 0.75rem;

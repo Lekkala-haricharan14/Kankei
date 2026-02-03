@@ -7,7 +7,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
     padding: 1rem;
 }
 
@@ -31,7 +31,7 @@
 }
 
 .back-link:hover {
-    color: #16a34a;
+    color: #7B1240;
 }
 
 .brand {
@@ -42,7 +42,7 @@
 }
 
 .brand .highlight {
-    color: #16a34a;
+    color: #7B1240;
 }
 
 h2 {
@@ -101,9 +101,9 @@ h2 {
 }
 
 .alert.success {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    color: #16a34a;
+    background: #fdf2f8;
+    border: 1px solid #f9a8d4;
+    color: #7B1240;
 }
 
 @keyframes slideDown {
@@ -146,8 +146,8 @@ h2 {
 
 .form-group input:focus {
     outline: none;
-    border-color: #16a34a;
-    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+    border-color: #7B1240;
+    box-shadow: 0 0 0 3px rgba(123, 18, 64, 0.1);
 }
 
 .form-group input.input-error {
@@ -164,7 +164,7 @@ h2 {
 .btn-login {
     width: 100%;
     padding: 0.875rem;
-    background: #16a34a;
+    background: #7B1240;
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -179,7 +179,7 @@ h2 {
 }
 
 .btn-login:hover:not(:disabled) {
-    background: #15803d;
+    background: #5F0D31;
 }
 
 .btn-login:disabled {
@@ -209,7 +209,7 @@ h2 {
 }
 
 .register-link a {
-    color: #16a34a;
+    color: #7B1240;
     text-decoration: none;
     font-weight: 500;
 }

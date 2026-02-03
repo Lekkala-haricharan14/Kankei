@@ -79,6 +79,8 @@ export interface ClientInvoice {
     totalAmount: number;
     dueDate: Date;
     status: 'Generated' | 'Sent' | 'Accepted' | 'Paid';
+    clientName?: string;
+    clientEmail?: string;
 }
 
 @Injectable({
@@ -213,7 +215,11 @@ export class DataService {
     loadClientInvoices() {
         this.http.get<ClientInvoice[]>(`${this.apiUrl}/invoices/client`, { headers: this.getHeaders() })
             .subscribe({
-                next: (data) => this.clientInvoicesSignal.set(data),
+                next: (data) => {
+                    console.log('Client Invoices received:', data);
+                    console.log('First invoice:', data[0]);
+                    this.clientInvoicesSignal.set(data);
+                },
                 error: (err) => console.error('Error loading client invoices:', err)
             });
     }
