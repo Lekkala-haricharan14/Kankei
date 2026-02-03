@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, computed, signal } from '@angular/core';
+import { Component, inject, OnInit, computed, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { DataService, ClientPO } from '../../core/services/data.service';
@@ -10,8 +10,10 @@ import { DataService, ClientPO } from '../../core/services/data.service';
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css'
 })
-export class AdminDashboardComponent implements OnInit {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   data = inject(DataService);
+
+  private refreshInterval: any;
 
   showAcceptModal = false;
   selectedPO: ClientPO | null = null;
@@ -117,6 +119,18 @@ export class AdminDashboardComponent implements OnInit {
     this.data.loadClientInvoices();
     this.data.loadPendingUsers(); // Load pending users for approval
     this.loadTrainers();
+
+    // Auto-refresh client invoices every 5 seconds to reflect client payments
+    this.refreshInterval = setInterval(() => {
+      this.data.loadClientInvoices();
+    }, 5000);
+  }
+
+  ngOnDestroy() {
+    // Clean up the interval when component is destroyed
+    if (this.refreshInterval) {
+      clearInterval(this.refreshInterval);
+    }
   }
 
   loadTrainers() {
@@ -295,6 +309,26 @@ export class AdminDashboardComponent implements OnInit {
       next: () => {
         this.data.loadTrainerInvoices();
         this.showToastNotification(`Invoice ${invoiceId} marked ${status}`, 'success');
+      },
+      error: (err) => this.showToastNotification('Error: ' + (err.error?.error || 'Unknown'), 'error')
+    });
+  }
+
+  markClientInvoiceAsPaid(invoiceId: string) {
+    this.data.markClientInvoiceAsPaid(invoiceId).subscribe({
+      next: () => {
+        this.data.loadClientInvoices();
+        this.showToastNotification(`Invoice ${invoiceId} marked as Paid`, 'success');
+      },
+      error: (err) => this.showToastNotification('Error: ' + (err.error?.error || 'Unknown'), 'error')
+    });
+  }
+
+  sendClientInvoiceToClient(invoiceId: string) {
+    this.data.sendClientInvoice(invoiceId).subscribe({
+      next: () => {
+        this.data.loadClientInvoices();
+        this.showToastNotification(`Invoice ${invoiceId} sent to client`, 'success');
       },
       error: (err) => this.showToastNotification('Error: ' + (err.error?.error || 'Unknown'), 'error')
     });

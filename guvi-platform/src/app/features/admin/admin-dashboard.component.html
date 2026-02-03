@@ -259,6 +259,56 @@
     </div>
 </section>
 
+<!-- Client Invoices Section -->
+<section class="recent-section">
+    <div id="client-invoices"></div>
+    <h2>Client Invoices</h2>
+    <div class="card table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Invoice ID</th>
+                    <th>Enrollment</th>
+                    <th>Client</th>
+                    <th>Amount</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (inv of data.clientInvoices(); track inv.invoiceId) {
+                <tr>
+                    <td class="font-mono">{{ inv.invoiceId }}</td>
+                    <td>{{ inv.enrollmentId }}</td>
+                    <td>{{ inv.clientId }}</td>
+                    <td>₹{{ inv.totalAmount | number }}</td>
+                    <td>{{ inv.dueDate | date: 'short' }}</td>
+                    <td>
+                        <span class="badge" [class]="inv.status.toLowerCase()">{{ inv.status }}</span>
+                    </td>
+                    <td>
+                        @if (inv.status === 'Generated') {
+                        <button class="btn-sm primary" (click)="sendClientInvoiceToClient(inv.invoiceId)">Send to Client</button>
+                        } @else if (inv.status === 'Accepted') {
+                        <button class="btn-sm success" disabled>Client Paid</button>
+                        } @else if (inv.status === 'Paid') {
+                        <button class="btn-sm success" disabled>Marked Paid</button>
+                        } @else {
+                        <span class="info-text">Awaiting client action</span>
+                        }
+                    </td>
+                </tr>
+                } @empty {
+                <tr>
+                    <td colspan="7" class="empty">No client invoices found</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
 <!-- Generate Client Invoice Modal -->
 @if (showGenerateInvoiceModal && selectedTrainerInvoice) {
 <div class="modal-overlay" (click)="showGenerateInvoiceModal = false">

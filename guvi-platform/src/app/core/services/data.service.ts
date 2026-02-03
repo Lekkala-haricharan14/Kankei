@@ -72,6 +72,7 @@ export interface ClientInvoice {
     invoiceId: string;
     enrollmentId: string;
     clientPoId: string;
+    clientId?: string;
     trainerInvoiceId?: string;
     baseAmount: number;
     tax: number;
@@ -224,6 +225,11 @@ export class DataService {
     // Send client invoice (Admin)
     sendClientInvoice(invoiceId: string) {
         return this.http.patch<ClientInvoice>(`${this.apiUrl}/invoices/client/${invoiceId}/send`, {}, { headers: this.getHeaders() });
+    }
+
+    // Mark client invoice as paid (Admin)
+    markClientInvoiceAsPaid(invoiceId: string) {
+        return this.http.patch<ClientInvoice>(`${this.apiUrl}/invoices/client/${invoiceId}/paid`, {}, { headers: this.getHeaders() });
     }
 
     acceptClientInvoice(invoiceId: string) {

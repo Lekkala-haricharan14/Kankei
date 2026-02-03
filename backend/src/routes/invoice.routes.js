@@ -1,5 +1,6 @@
 const express = require('express');
 const { TrainerInvoice, ClientInvoice } = require('../models/Invoice');
+const User = require('../models/User'); // Required for populate to work efficiently
 const { auth, authorize } = require('../middleware/auth');
 const router = express.Router();
 
@@ -16,9 +17,39 @@ router.get('/trainer', auth, async (req, res) => {
             return res.status(403).json({ error: 'Access denied' });
         }
 
-        const invoices = await TrainerInvoice.find(query).sort({ invoiceDate: -1 });
-        res.json(invoices);
+        // 1. Fetch Trainer Invoices with populated trainer info
+        const invoices = await TrainerInvoice.find(query)
+            .populate('trainerId', 'name email')
+            .sort({ invoiceDate: -1 })
+            .lean();
+
+        // Debug POPULATE
+        if (invoices.length > 0) {
+            console.log('DEBUG_INVOICE_POPULATE (first):', JSON.stringify(invoices[0].trainerId));
+        }
+
+        // 2. Fetch all Client Invoices to check for existence
+        // We only need the trainerInvoiceId to check against
+        const clientInvoices = await ClientInvoice.find({}, 'trainerInvoiceId').lean();
+        const processedInvoiceIds = new Set(
+            clientInvoices
+                .filter(ci => ci.trainerInvoiceId)
+                .map(ci => ci.trainerInvoiceId)
+        );
+
+        // 3. Merge data
+        const result = invoices.map(inv => {
+            const trainerObj = inv.trainerId; // This should be an object now
+            return {
+                ...inv,
+                trainerName: (trainerObj && trainerObj.name) ? trainerObj.name : '-',
+                clientInvoiceCreated: processedInvoiceIds.has(inv.invoiceId)
+            };
+        });
+
+        res.json(result);
     } catch (error) {
+        console.error('Error in GET /trainer:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -83,18 +114,28 @@ router.get('/client', auth, async (req, res) => {
 // Generate client invoice (Admin)
 router.post('/client', auth, authorize('Admin'), async (req, res) => {
     try {
-        const { baseAmount, ...rest } = req.body;
+        const { baseAmount, trainerInvoiceId, ...rest } = req.body;
         const tax = baseAmount * 0.18; // 18% GST
         const totalAmount = baseAmount + tax;
 
         const invoice = new ClientInvoice({
             ...rest,
+            trainerInvoiceId,
             baseAmount,
             tax,
             totalAmount,
             status: 'Generated'
         });
         await invoice.save();
+
+        // Mark trainer invoice as processed if linked
+        if (trainerInvoiceId) {
+            await TrainerInvoice.findOneAndUpdate(
+                { invoiceId: trainerInvoiceId },
+                { clientInvoiceCreated: true }
+            );
+        }
+
         res.status(201).json(invoice);
     } catch (error) {
         res.status(500).json({ error: error.message });

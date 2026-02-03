@@ -13,7 +13,8 @@ const trainerInvoiceSchema = new mongoose.Schema({
         type: String,
         enum: ['Created', 'Verified', 'Approved', 'Paid'],
         default: 'Created'
-    }
+    },
+    clientInvoiceCreated: { type: Boolean, default: false }
 });
 
 trainerInvoiceSchema.pre('save', async function (next) {
