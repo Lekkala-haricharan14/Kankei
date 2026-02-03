@@ -126,6 +126,11 @@ export class DataService {
             { trainerId, trainerName }, { headers: this.getHeaders() });
     }
 
+    assignTrainerToEnrollment(enrollmentId: string, data: any) {
+        return this.http.patch<Enrollment>(`${this.apiUrl}/enrollments/${enrollmentId}/assign-trainer`,
+            data, { headers: this.getHeaders() });
+    }
+
     // ============ CLIENT POs ============
     loadClientPos() {
         this.http.get<ClientPO[]>(`${this.apiUrl}/client-pos`, { headers: this.getHeaders() })
@@ -157,7 +162,7 @@ export class DataService {
     }
 
     getTrainers() {
-        return this.http.get<Array<{ _id: string; name: string; email: string }>>(
+        return this.http.get<Array<{ _id: string; name: string; email: string; expertise?: string }>>(
             `${this.apiUrl}/auth/trainers`,
             { headers: this.getHeaders() }
         );
