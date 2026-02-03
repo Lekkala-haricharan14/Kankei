@@ -17,6 +17,13 @@ export class ClientDashboardComponent implements OnInit {
   showPoModal = false;
   showInvoiceModal = false;
   selectedInvoice: ClientInvoice | null = null;
+  // Payment modal (simulated, no integrations)
+  showPaymentModal = false;
+  paymentInvoice: ClientInvoice | null = null;
+  paymentForm = {
+    method: 'Card',
+    reference: ''
+  };
 
   requestForm = {
     technology: '',
@@ -83,11 +90,23 @@ export class ClientDashboardComponent implements OnInit {
     this.showInvoiceModal = true;
   }
 
-  acceptInvoice(inv: ClientInvoice) {
-    this.data.acceptClientInvoice(inv.invoiceId).subscribe({
+  // Open simulated payment modal
+  openPaymentModal(inv: ClientInvoice) {
+    this.paymentInvoice = inv;
+    this.paymentForm = { method: 'Card', reference: '' };
+    this.showPaymentModal = true;
+  }
+
+  // Confirm payment (simulated): mark invoice as Accepted
+  confirmPayment() {
+    if (!this.paymentInvoice) return;
+    this.data.acceptClientInvoice(this.paymentInvoice.invoiceId).subscribe({
       next: () => {
+        this.showPaymentModal = false;
+        this.showInvoiceModal = false;
+        this.paymentInvoice = null;
         this.data.loadClientInvoices();
-        alert('Invoice accepted successfully!');
+        alert('Payment simulated: invoice accepted. Admin will confirm payment.');
       },
       error: (err) => alert('Error: ' + err.error?.error)
     });
