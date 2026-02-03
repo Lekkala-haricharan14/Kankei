@@ -461,13 +461,15 @@
     }
 
     input,
-    select {
+    select,
+    textarea {
         width: 100%;
         padding: 0.75rem;
         border: 1px solid #e2e8f0;
         border-radius: 0.5rem;
         font-size: 0.875rem;
         transition: all 0.15s;
+        font-family: inherit;
 
         &:focus {
             outline: none;
@@ -481,6 +483,11 @@
         }
     }
 
+    textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
     &.half {
         flex: 1;
     }
@@ -489,6 +496,11 @@
 .form-row {
     display: flex;
     gap: 1rem;
+}
+
+/* Training Modal (larger) */
+.training-modal {
+    max-width: 560px;
 }
 
 .modal-actions {

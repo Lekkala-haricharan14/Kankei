@@ -28,6 +28,12 @@ export class ClientDashboardComponent implements OnInit {
   requestForm = {
     technology: '',
     duration: '',
+    startDate: '',
+    endDate: '',
+    numberOfPeople: 1,
+    trainingMode: 'Online' as 'Online' | 'Offline' | 'Hybrid',
+    location: '',
+    remarks: '',
     budget: 0
   };
 
@@ -49,7 +55,7 @@ export class ClientDashboardComponent implements OnInit {
     this.data.createEnrollment(this.requestForm).subscribe({
       next: () => {
         this.showRequestModal = false;
-        this.requestForm = { technology: '', duration: '', budget: 0 };
+        this.requestForm = { technology: '', duration: '', startDate: '', endDate: '', numberOfPeople: 1, trainingMode: 'Online' as const, location: '', remarks: '', budget: 0 };
         this.data.loadEnrollments();
         alert('Training request submitted successfully!');
       },
@@ -108,5 +114,25 @@ export class ClientDashboardComponent implements OnInit {
 
   hasPoForEnrollment(enrollmentId: string): boolean {
     return this.data.clientPos().some(po => po.enrollmentId === enrollmentId);
+  }
+
+  calculateDays(): number {
+    if (this.requestForm.startDate && this.requestForm.endDate) {
+      const start = new Date(this.requestForm.startDate);
+      const end = new Date(this.requestForm.endDate);
+      const diffTime = end.getTime() - start.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include both start and end days
+      return diffDays > 0 ? diffDays : 0;
+    }
+    return 0;
+  }
+
+  updateDuration(): void {
+    const days = this.calculateDays();
+    if (days > 0) {
+      this.requestForm.duration = `${days} day${days > 1 ? 's' : ''}`;
+    } else {
+      this.requestForm.duration = '';
+    }
   }
 }

@@ -141,25 +141,66 @@
 <!-- Training Request Modal -->
 @if (showRequestModal) {
 <div class="modal-overlay" (click)="showRequestModal = false">
-    <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal training-modal" (click)="$event.stopPropagation()">
         <div class="modal-header">
             <h3>Request Training</h3>
             <button class="modal-close" (click)="showRequestModal = false">&times;</button>
         </div>
         <form (ngSubmit)="submitRequest()">
-            <div class="form-group">
-                <label>Technology</label>
-                <input type="text" [(ngModel)]="requestForm.technology" name="technology"
-                    placeholder="e.g., Angular, React, Python" required>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>Technology *</label>
+                    <input type="text" [(ngModel)]="requestForm.technology" name="technology"
+                        placeholder="e.g., Angular, React, Python" required>
+                </div>
+                <div class="form-group half">
+                    <label>Days (auto-calculated)</label>
+                    <input type="text" [(ngModel)]="requestForm.duration" name="duration"
+                        placeholder="Select dates above" readonly class="readonly">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Duration</label>
-                <input type="text" [(ngModel)]="requestForm.duration" name="duration" placeholder="e.g., 40 Hours"
-                    required>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>Start Date *</label>
+                    <input type="date" [(ngModel)]="requestForm.startDate" name="startDate"
+                        (ngModelChange)="updateDuration()" required>
+                </div>
+                <div class="form-group half">
+                    <label>End Date *</label>
+                    <input type="date" [(ngModel)]="requestForm.endDate" name="endDate"
+                        (ngModelChange)="updateDuration()" required>
+                </div>
             </div>
+            <div class="form-row">
+                <div class="form-group half">
+                    <label>Number of Participants *</label>
+                    <input type="number" [(ngModel)]="requestForm.numberOfPeople" name="numberOfPeople"
+                        placeholder="Enter number of participants" min="1" required>
+                </div>
+                <div class="form-group half">
+                    <label>Training Mode *</label>
+                    <select [(ngModel)]="requestForm.trainingMode" name="trainingMode" required>
+                        <option value="Online">Online</option>
+                        <option value="Offline">Offline</option>
+                        <option value="Hybrid">Hybrid</option>
+                    </select>
+                </div>
+            </div>
+            @if (requestForm.trainingMode !== 'Online') {
+            <div class="form-group">
+                <label>Location {{ requestForm.trainingMode === 'Offline' ? '*' : '' }}</label>
+                <input type="text" [(ngModel)]="requestForm.location" name="location"
+                    placeholder="Enter training venue/location" [required]="requestForm.trainingMode === 'Offline'">
+            </div>
+            }
             <div class="form-group">
                 <label>Budget (₹)</label>
                 <input type="number" [(ngModel)]="requestForm.budget" name="budget" placeholder="Enter your budget">
+            </div>
+            <div class="form-group">
+                <label>Additional Remarks</label>
+                <textarea [(ngModel)]="requestForm.remarks" name="remarks" rows="3"
+                    placeholder="Any special requirements or notes..."></textarea>
             </div>
             <div class="modal-actions">
                 <button type="button" class="btn-secondary" (click)="showRequestModal = false">Cancel</button>

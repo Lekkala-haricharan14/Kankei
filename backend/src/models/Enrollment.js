@@ -8,6 +8,16 @@ const enrollmentSchema = new mongoose.Schema({
     trainerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     trainerName: String,
     duration: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+    numberOfPeople: { type: Number, required: true, min: 1 },
+    trainingMode: {
+        type: String,
+        enum: ['Online', 'Offline', 'Hybrid'],
+        required: true
+    },
+    location: String,
+    remarks: String,
     budget: Number,
     status: {
         type: String,

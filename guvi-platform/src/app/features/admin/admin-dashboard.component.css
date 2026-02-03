@@ -213,6 +213,10 @@
     animation: modalIn 0.2s ease-out;
 }
 
+.modal-large {
+    max-width: 700px;
+}
+
 @keyframes modalIn {
     from {
         opacity: 0;
@@ -318,19 +322,59 @@
     }
 
     input,
-    select {
+    select,
+    textarea {
         width: 100%;
         padding: 0.75rem;
         border: 1px solid #e2e8f0;
         border-radius: 0.5rem;
         font-size: 0.875rem;
         transition: all 0.15s;
+        font-family: inherit;
 
         &:focus {
             outline: none;
             border-color: #2563eb;
             box-shadow: 0 0 0 3px rgb(37 99 235 / 0.1);
         }
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.form-checkboxes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    user-select: none;
+
+    input[type="checkbox"] {
+        width: auto;
+        cursor: pointer;
+        accent-color: #16a34a;
+    }
+
+    span {
+        color: #334155;
+        font-size: 0.875rem;
     }
 }
 
@@ -552,4 +596,24 @@
 /* Alert stat card styling */
 .stat-card.alert .value {
     color: #dc2626;
+}
+
+/* Info box */
+.info-box {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin: 1rem 0;
+
+    p {
+        margin: 0;
+        color: #1e40af;
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+    strong {
+        font-weight: 600;
+    }
 }
