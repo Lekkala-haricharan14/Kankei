@@ -24,7 +24,6 @@ export class AdminDashboardComponent implements OnInit {
     clientPoId: '',
     clientId: ''
   };
-  trainers = signal<Array<{ _id: string; name: string; email: string }>>([]);
   showAssignTrainerModal = false;
   selectedEnrollment: any = null;
   trainers = signal<Array<{ _id: string; name: string; email: string; expertise?: string }>>([]);
