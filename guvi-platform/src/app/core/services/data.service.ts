@@ -64,6 +64,7 @@ export interface TrainerInvoice {
     amount: number;
     invoiceDate: Date;
     status: 'Created' | 'Verified' | 'Approved' | 'Paid';
+    clientInvoiceCreated?: boolean;
 }
 
 export interface ClientInvoice {

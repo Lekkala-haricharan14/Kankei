@@ -271,21 +271,22 @@ export class AdminDashboardComponent implements OnInit {
 
     this.data.createClientInvoice(payload).subscribe({
       next: (created) => {
-        // Optionally send immediately
+        // Send immediately
         this.data.sendClientInvoice(created.invoiceId).subscribe({
           next: () => {
             this.showGenerateInvoiceModal = false;
+            // Reload both to get updated clientInvoiceCreated flag
             this.data.loadClientInvoices();
             this.data.loadTrainerInvoices();
-            alert('Client invoice created and sent to client successfully!');
+            this.showToastNotification('Client invoice created and sent successfully!', 'success');
           },
           error: (err) => {
             console.error(err);
-            alert('Client invoice created but failed to send: ' + err.error?.error);
+            this.showToastNotification('Client invoice created but failed to send: ' + (err.error?.error || 'Unknown'), 'error');
           }
         });
       },
-      error: (err) => alert('Error creating client invoice: ' + err.error?.error)
+      error: (err) => this.showToastNotification('Error creating client invoice: ' + (err.error?.error || 'Unknown'), 'error')
     });
   }
 

@@ -237,13 +237,15 @@
                         @if (inv.status === 'Created') {
                         <button class="btn-sm primary"
                             (click)="updateTrainerInvoice(inv.invoiceId, 'Verified')">Verify</button>
-                        <button class="btn-sm" (click)="openGenerateInvoiceModal(inv)">Create & Send to Client</button>
                         } @else if (inv.status === 'Verified') {
                         <button class="btn-sm primary"
                             (click)="updateTrainerInvoice(inv.invoiceId, 'Approved')">Approve</button>
-                        <button class="btn-sm" (click)="openGenerateInvoiceModal(inv)">Create & Send to Client</button>
+                        }
+
+                        @if (inv.clientInvoiceCreated) {
+                        <button class="btn-sm success" disabled>Sent to Client</button>
                         } @else {
-                        <button class="btn-sm" (click)="openGenerateInvoiceModal(inv)">Create & Send to Client</button>
+                        <button class="btn-sm primary" (click)="openGenerateInvoiceModal(inv)">Create & Send to Client</button>
                         }
                     </td>
                 </tr>
