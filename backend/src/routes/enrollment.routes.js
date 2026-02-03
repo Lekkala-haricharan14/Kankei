@@ -40,6 +40,7 @@ router.post('/', auth, authorize('Client'), async (req, res) => {
             ...req.body,
             clientId: req.user._id,
             clientName: req.user.name,
+            trainerName: 'Pending',
             status: 'Requested'
         });
         await enrollment.save();
